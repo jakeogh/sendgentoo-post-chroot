@@ -372,13 +372,9 @@ def cli(ctx,
     sh.rc_update('add', 'net.eth0', 'default', _out=sys.stdout, _err=sys.stderr)
 
     install_package('netdate')
-    set_time_command = sh.Command('/home/cfg/time/set_time_via_ntp')
-    set_time_command(_out=sys.stdout, _err=sys.stderr)
-
-    #install_package('sys-fs/eudev')
-    #sh.touch('/run/openrc/softlevel')
-    #udev_command = sh.Command('/etc/init.d/udev')
-    #udev_command('--nodeps', 'restart')
+    sh.date(_out=sys.stdout, _err=sys.stderr)
+    sh.netdate('time.nist.gov', _out=sys.stdout, _err=sys.stderr)
+    sh.date(_out=sys.stdout, _err=sys.stderr)
 
     install_package('gpm')
     sh.rc_update('add', 'gpm', 'default', _out=sys.stdout, _err=sys.stderr)   #console mouse support
