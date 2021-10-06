@@ -69,10 +69,11 @@ def emerge_force(package):
     emerge_command('--autounmask-continue', _env=_env, _out=sys.stdout, _err=sys.stderr, _in=sys.stdin)
 
 
-emerge_force('sendgentoo-post-chroot')
+emerge_force('pathtool')
 emerge_force('portagetool')
-emerge_force('boottool')
 emerge_force('devicetool')
+emerge_force('boottool')
+emerge_force('sendgentoo-post-chroot')
 
 #sh.emerge('--with-bdeps=y', '--quiet', '--tree', '--usepkg=n', '--ask', 'n', '--autounmask', '--autounmask-write', 'sendgentoo-post-chroot', _env=_env, _out=sys.stdout, _err=sys.stderr, _in=sys.stdin, _ok_code=[0,1])
 #sh.emerge('--with-bdeps=y', '--quiet', '--tree', '--usepkg=n', '--ask', 'n', '--autounmask', '--autounmask-write', 'sendgentoo-post-chroot', _env=_env, _out=sys.stdout, _err=sys.stderr, _in=sys.stdin)
@@ -266,8 +267,8 @@ def cli(ctx,
     if not Path('/usr/src/linux/.config').is_symlink():
         #sh.ln('-s', '/home/cfg/sysskel/usr/src/linux_configs/.config', '/usr/src/linux_configs/.config')
         #sh.ln('-s', '/usr/src/linux_configs/.config', '/usr/src/linux/.config')
-        gurantee_symlink('/home/cfg/sysskel/usr/src/linux_configs/.config', '/usr/src/linux_configs/.config')
-        gurantee_symlink('/usr/src/linux_configs/.config', '/usr/src/linux/.config')
+        gurantee_symlink(relative=False, target='/home/cfg/sysskel/usr/src/linux_configs/.config', link_name='/usr/src/linux_configs/.config', verbose=verbose, debug=debug,)
+        gurantee_symlink(relative=False, target='/usr/src/linux_configs/.config', link_name='/usr/src/linux/.config', verbose=verbose, debug=debug,)
 
     try:
         sh.grep("CONFIG_TRIM_UNUSED_KSYMS is not set", '/usr/src/linux/.config')
