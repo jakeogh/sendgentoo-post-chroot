@@ -365,7 +365,7 @@ def cli(ctx,
     #install_grub_command = sh.Command('/home/cfg/_myapps/sendgentoo/sendgentoo/post_chroot_install_grub.sh', boot_device)
     #install_grub_command(_out=sys.stdout, _err=sys.stderr)
 
-    sh.rc_update('add', 'zfs-mount', 'boot', _out=sys.stdout, _err=sys.stderr) # dont exit if this fails
+    sh.rc_update('add', 'zfs-mount', 'boot', _out=sys.stdout, _err=sys.stderr, _ok_code=[0, 1]) # dont exit if this fails
     install_package('dhcpcd')  # not in stage3
 
     sh.ln('-rs', '/etc/init.d/net.lo', '/etc/init.d/net.eth0', _out=sys.stdout, _err=sys.stderr)
