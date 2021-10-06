@@ -66,6 +66,8 @@ sh.emerge('--with-bdeps=y', '--quiet', '--tree', '--usepkg=n', '--ask', 'n', '--
 sh.emerge('--with-bdeps=y', '--quiet', '--tree', '--usepkg=n', '--ask', 'n', '--autounmask', '--autounmask-write', 'portagetool', _env=_env, _out=sys.stdout, _err=sys.stderr, _in=sys.stdin, _ok_code=[0,1])
 sh.emerge('--with-bdeps=y', '--quiet', '--tree', '--usepkg=n', '--ask', 'n', '--autounmask', '--autounmask-write', 'portagetool', _env=_env, _out=sys.stdout, _err=sys.stderr, _in=sys.stdin)
 
+sh.emerge('--with-bdeps=y', '--quiet', '--tree', '--usepkg=n', '--ask', 'n', '--autounmask', '--autounmask-write', 'boottool', _env=_env, _out=sys.stdout, _err=sys.stderr, _in=sys.stdin, _ok_code=[0,1])
+sh.emerge('--with-bdeps=y', '--quiet', '--tree', '--usepkg=n', '--ask', 'n', '--autounmask', '--autounmask-write', 'boottool', _env=_env, _out=sys.stdout, _err=sys.stderr, _in=sys.stdin)
 import click
 
 signal(SIGPIPE, SIG_DFL)
