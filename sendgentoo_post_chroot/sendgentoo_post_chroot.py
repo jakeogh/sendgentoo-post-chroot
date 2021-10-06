@@ -294,7 +294,8 @@ def cli(ctx,
     #grub-install --compress=no --target=x86_64-efi --efi-directory=/boot/efi --boot-directory=/boot --removable --recheck --no-rs-codes "${boot_device}" || exit 1
     #grub-install --compress=no --target=i386-pc --boot-directory=/boot --recheck --no-rs-codes "${boot_device}" || exit 1
 
-    sh.ln('-s', '/home/cfg/sysskel/etc/skel/bin', '/root/bin')
+    os.symlink('/home/cfg/sysskel/etc/skel/bin', '/root/bin')
+    #sh.ln('-s', '/home/cfg/sysskel/etc/skel/bin', '/root/bin')
 
     install_package('gradm')  # required for gentoo-hardened RBAC
 
@@ -368,7 +369,8 @@ def cli(ctx,
     sh.rc_update('add', 'zfs-mount', 'boot', _out=sys.stdout, _err=sys.stderr, _ok_code=[0, 1]) # dont exit if this fails
     install_package('dhcpcd')  # not in stage3
 
-    sh.ln('-rs', '/etc/init.d/net.lo', '/etc/init.d/net.eth0', _out=sys.stdout, _err=sys.stderr)
+    #sh.ln('-rs', '/etc/init.d/net.lo', '/etc/init.d/net.eth0', _out=sys.stdout, _err=sys.stderr)
+    os.symlink('/etc/init.d/net.lo', '/etc/init.d/net.eth0')
     sh.rc_update('add', 'net.eth0', 'default', _out=sys.stdout, _err=sys.stderr)
 
     install_package('netdate')
