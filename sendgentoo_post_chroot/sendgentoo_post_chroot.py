@@ -32,7 +32,7 @@ from signal import SIG_DFL
 from signal import SIGPIPE
 from signal import signal
 
-if len(sys.argv) == 1:
+if len(sys.argv) <= 2:
     print(sys.argv[0], "arguments required")
     sys.exit(1)
 
