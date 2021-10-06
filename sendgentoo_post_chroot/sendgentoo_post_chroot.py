@@ -27,7 +27,7 @@ import logging
 logging.basicConfig(level=logging.INFO)
 import os
 import sys
-import time
+#import time
 from signal import SIG_DFL
 from signal import SIGPIPE
 from signal import signal
@@ -79,20 +79,15 @@ from typing import Sequence
 from typing import Tuple
 from typing import Union
 
-#from with_sshfs import sshfs
-#from with_chdir import chdir
 from asserttool import eprint
 from asserttool import ic
 from asserttool import nevd
+from boottool import install_grub
 from mounttool import path_is_mounted
 from pathtool import write_line_to_file
 from portagetool import add_accept_keyword
 from portagetool import install_package
 from portagetool import install_package_force
-from sendgentoo.post_chroot_install_grub import install_grub
-
-#from retry_on_exception import retry_on_exception
-
 
 
 @click.command()
