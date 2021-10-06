@@ -72,6 +72,7 @@ def emerge_force(package):
 emerge_force('sendgentoo-post-chroot')
 emerge_force('portagetool')
 emerge_force('boottool')
+emerge_force('devicetool')
 
 #sh.emerge('--with-bdeps=y', '--quiet', '--tree', '--usepkg=n', '--ask', 'n', '--autounmask', '--autounmask-write', 'sendgentoo-post-chroot', _env=_env, _out=sys.stdout, _err=sys.stderr, _in=sys.stdin, _ok_code=[0,1])
 #sh.emerge('--with-bdeps=y', '--quiet', '--tree', '--usepkg=n', '--ask', 'n', '--autounmask', '--autounmask-write', 'sendgentoo-post-chroot', _env=_env, _out=sys.stdout, _err=sys.stderr, _in=sys.stdin)
