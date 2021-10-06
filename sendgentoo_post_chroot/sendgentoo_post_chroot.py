@@ -64,9 +64,9 @@ _env['CONFIG_PROTECT'] = '-*'
 def emerge_force(package):
     emerge_command = sh.emerge.bake('--with-bdeps=y', '--quiet', '--tree', '--usepkg=n', '--ask', 'n', '--autounmask', '--autounmask-write', package, _env=_env, _out=sys.stdout, _err=sys.stderr, _in=sys.stdin, _ok_code=[0,1])
 
-    emerge_command(_env=_env, _out=sys.stdout, _err=sys.stderr, _in=sys.stdin, _ok_code=[0,1])
-    emerge_command('-p', _env=_env, _out=sys.stdout, _err=sys.stderr, _in=sys.stdin, _ok_code=[0,1])
-    emerge_command(_env=_env, _out=sys.stdout, _err=sys.stderr, _in=sys.stdin)
+    #emerge_command(_env=_env, _out=sys.stdout, _err=sys.stderr, _in=sys.stdin, _ok_code=[0,1])
+    emerge_command('-pv', _env=_env, _out=sys.stdout, _err=sys.stderr, _in=sys.stdin, _ok_code=[0,1])
+    emerge_command('--autounmask-continue', _env=_env, _out=sys.stdout, _err=sys.stderr, _in=sys.stdin)
 
 
 emerge_force('sendgentoo-post-chroot')
