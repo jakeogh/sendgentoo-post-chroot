@@ -100,6 +100,7 @@ from asserttool import ic
 from asserttool import nevd
 from boottool import install_grub
 from mounttool import path_is_mounted
+from pathtool import gurantee_symlink
 from pathtool import write_line_to_file
 from portagetool import add_accept_keyword
 from portagetool import install_package
@@ -263,8 +264,10 @@ def cli(ctx,
         pass
 
     if not Path('/usr/src/linux/.config').is_symlink():
-        sh.ln('-s', '/home/cfg/sysskel/usr/src/linux_configs/.config', '/usr/src/linux_configs/.config')
-        sh.ln('-s', '/usr/src/linux_configs/.config', '/usr/src/linux/.config')
+        #sh.ln('-s', '/home/cfg/sysskel/usr/src/linux_configs/.config', '/usr/src/linux_configs/.config')
+        #sh.ln('-s', '/usr/src/linux_configs/.config', '/usr/src/linux/.config')
+        gurantee_symlink('/home/cfg/sysskel/usr/src/linux_configs/.config', '/usr/src/linux_configs/.config')
+        gurantee_symlink('/usr/src/linux_configs/.config', '/usr/src/linux/.config')
 
     try:
         sh.grep("CONFIG_TRIM_UNUSED_KSYMS is not set", '/usr/src/linux/.config')
