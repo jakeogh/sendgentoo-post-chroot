@@ -265,8 +265,6 @@ def cli(ctx,
         pass
 
     if not Path('/usr/src/linux/.config').is_symlink():
-        #sh.ln('-s', '/home/cfg/sysskel/usr/src/linux_configs/.config', '/usr/src/linux_configs/.config')
-        #sh.ln('-s', '/usr/src/linux_configs/.config', '/usr/src/linux/.config')
         gurantee_symlink(relative=False, target='/home/cfg/sysskel/usr/src/linux_configs/.config', link_name='/usr/src/linux_configs/.config', verbose=verbose, debug=debug,)
         gurantee_symlink(relative=False, target='/usr/src/linux_configs/.config', link_name='/usr/src/linux/.config', verbose=verbose, debug=debug,)
 
@@ -294,12 +292,10 @@ def cli(ctx,
                        verbose=verbose,
                        debug=debug,)
 
-    #ln -sf /proc/self/mounts /etc/mtab
     #grub-install --compress=no --target=x86_64-efi --efi-directory=/boot/efi --boot-directory=/boot --removable --recheck --no-rs-codes "${boot_device}" || exit 1
     #grub-install --compress=no --target=i386-pc --boot-directory=/boot --recheck --no-rs-codes "${boot_device}" || exit 1
 
     gurantee_symlink(relative=False, target='/home/cfg/sysskel/etc/skel/bin', link_name='/root/bin', verbose=verbose, debug=debug,)
-    #sh.ln('-s', '/home/cfg/sysskel/etc/skel/bin', '/root/bin')
 
     install_package('gradm')  # required for gentoo-hardened RBAC
 
@@ -373,8 +369,7 @@ def cli(ctx,
     sh.rc_update('add', 'zfs-mount', 'boot', _out=sys.stdout, _err=sys.stderr, _ok_code=[0, 1]) # dont exit if this fails
     install_package('dhcpcd')  # not in stage3
 
-    #sh.ln('-rs', '/etc/init.d/net.lo', '/etc/init.d/net.eth0', _out=sys.stdout, _err=sys.stderr)
-    os.symlink('/etc/init.d/net.lo', '/etc/init.d/net.eth0')
+    gurantee_symlink(relative=False, target='/etc/init.d/net.lo', link_name='/etc/init.d/net.eth0', verbose=verbose, debug=debug,)
     sh.rc_update('add', 'net.eth0', 'default', _out=sys.stdout, _err=sys.stderr)
 
     install_package('netdate')
