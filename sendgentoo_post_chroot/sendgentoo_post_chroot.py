@@ -298,7 +298,7 @@ def cli(ctx,
     #grub-install --compress=no --target=x86_64-efi --efi-directory=/boot/efi --boot-directory=/boot --removable --recheck --no-rs-codes "${boot_device}" || exit 1
     #grub-install --compress=no --target=i386-pc --boot-directory=/boot --recheck --no-rs-codes "${boot_device}" || exit 1
 
-    os.symlink('/home/cfg/sysskel/etc/skel/bin', '/root/bin')
+    gurantee_symlink(relative=False, target='/home/cfg/sysskel/etc/skel/bin', link_name='/root/bin', verbose=verbose, debug=debug,)
     #sh.ln('-s', '/home/cfg/sysskel/etc/skel/bin', '/root/bin')
 
     install_package('gradm')  # required for gentoo-hardened RBAC
