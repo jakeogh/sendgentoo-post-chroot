@@ -44,10 +44,7 @@ def syscmd(cmd):
 syscmd('eselect news read --all')
 syscmd('emerge --quiet dev-vcs/git -1 -u')
 syscmd('emerge --sync')
-syscmd('emerge --quiet sys-apps/portage -1 -u')
-syscmd('emerge --quiet dev-python/click -1 -u')
-syscmd('emerge --quiet app-eselect/eselect-repository -1 -u')
-syscmd('emerge --quiet dev-python/sh -1 -u')
+syscmd('emerge --quiet sys-apps/portage dev-python/click app-eselect/eselect-repository dev-python/sh -1 -u')
 import sh
 
 os.makedirs('/etc/portage/repos.conf', exist_ok=True)
@@ -62,28 +59,18 @@ _env = os.environ.copy()
 _env['CONFIG_PROTECT'] = '-*'
 
 
-def emerge_force(package):
-    emerge_command = sh.emerge.bake('--with-bdeps=y', '--quiet', '--tree', '--usepkg=n', '--ask', 'n', '--autounmask', '--autounmask-write', package, _env=_env, _out=sys.stdout, _err=sys.stderr, _in=sys.stdin, _ok_code=[0,1])
+def emerge_force(packages):
+    emerge_command = sh.emerge.bake('--with-bdeps=y', '--quiet', '--tree', '--usepkg=n', '--ask', 'n', '--autounmask', '--autounmask-write', _env=_env, _out=sys.stdout, _err=sys.stderr, _in=sys.stdin, _ok_code=[0,1])
 
-    #emerge_command(_env=_env, _out=sys.stdout, _err=sys.stderr, _in=sys.stdin, _ok_code=[0,1])
+    for package in packages:
+        emerge_command.bake(package)
+
     emerge_command('-pv', _env=_env, _out=sys.stdout, _err=sys.stderr, _in=sys.stdin, _ok_code=[0,1])
     emerge_command('--autounmask-continue', _env=_env, _out=sys.stdout, _err=sys.stderr, _in=sys.stdin)
 
 
-emerge_force('pathtool')
-emerge_force('portagetool')
-emerge_force('devicetool')
-emerge_force('boottool')
-emerge_force('sendgentoo-post-chroot')
+emerge_force(['pathtool', 'portagetool', 'devicetool', 'boottool', 'sendgentoo-post-chroot'])
 
-#sh.emerge('--with-bdeps=y', '--quiet', '--tree', '--usepkg=n', '--ask', 'n', '--autounmask', '--autounmask-write', 'sendgentoo-post-chroot', _env=_env, _out=sys.stdout, _err=sys.stderr, _in=sys.stdin, _ok_code=[0,1])
-#sh.emerge('--with-bdeps=y', '--quiet', '--tree', '--usepkg=n', '--ask', 'n', '--autounmask', '--autounmask-write', 'sendgentoo-post-chroot', _env=_env, _out=sys.stdout, _err=sys.stderr, _in=sys.stdin)
-#
-#sh.emerge('--with-bdeps=y', '--quiet', '--tree', '--usepkg=n', '--ask', 'n', '--autounmask', '--autounmask-write', 'portagetool', _env=_env, _out=sys.stdout, _err=sys.stderr, _in=sys.stdin, _ok_code=[0,1])
-#sh.emerge('--with-bdeps=y', '--quiet', '--tree', '--usepkg=n', '--ask', 'n', '--autounmask', '--autounmask-write', 'portagetool', _env=_env, _out=sys.stdout, _err=sys.stderr, _in=sys.stdin)
-#
-#sh.emerge('--with-bdeps=y', '--quiet', '--tree', '--usepkg=n', '--ask', 'n', '--autounmask', '--autounmask-write', 'boottool', _env=_env, _out=sys.stdout, _err=sys.stderr, _in=sys.stdin, _ok_code=[0,1])
-#sh.emerge('--with-bdeps=y', '--quiet', '--tree', '--usepkg=n', '--ask', 'n', '--autounmask', '--autounmask-write', 'boottool', _env=_env, _out=sys.stdout, _err=sys.stderr, _in=sys.stdin)
 import click
 
 signal(SIGPIPE, SIG_DFL)
@@ -105,8 +92,8 @@ from mounttool import path_is_mounted
 from pathtool import gurantee_symlink
 from pathtool import write_line_to_file
 from portagetool import add_accept_keyword
-from portagetool import install_package
-from portagetool import install_package_force
+from portagetool import install_packages
+from portagetool import install_packages_force
 
 
 @click.command()
@@ -237,7 +224,7 @@ def cli(ctx,
 
 
     # works, but quite a delay for an installer
-    #install_package('gcc', verbose=verbose)
+    #install_packages(['gcc'], verbose=verbose)
     #sh.gcc_config('latest', _out=sys.stdout, _err=sys.stderr)
 
     # install kernel and update symlink (via use flag)
@@ -250,10 +237,12 @@ def cli(ctx,
                        verbose=verbose,
                        debug=debug,)
 
-    install_package('sys-kernel/{kernel}'.format(kernel=kernel))
-    install_package('grub')
-    install_package('dev-util/strace')
-    install_package('memtest86+') # do before generating grub.conf
+    # memtest86+ # do before generating grub.conf
+    install_packages(['sys-kernel/{kernel}'.format(kernel=kernel)],
+                      'grub',
+                      'dev-util/strace',
+                      'memtest86+',
+                      ])
 
     os.makedirs('/usr/src/linux_configs', exist_ok=True)
 
@@ -300,7 +289,7 @@ def cli(ctx,
 
     gurantee_symlink(relative=False, target='/home/cfg/sysskel/etc/skel/bin', link_name='/root/bin', verbose=verbose, debug=debug,)
 
-    install_package('gradm')  # required for gentoo-hardened RBAC
+    install_packages(['gradm'])  # required for gentoo-hardened RBAC
 
     # required for genkernel
     write_line_to_file(path=Path('/etc') / Path('portage') / Path('package.use') / Path('util-linux'),
@@ -317,8 +306,7 @@ def cli(ctx,
                        verbose=verbose,
                        debug=debug,)
 
-    install_package('genkernel')
-    #install_package('app-eselect/eselect-repository')
+    install_packages(['genkernel'])
     os.makedirs('/etc/portage/repos.conf', exist_ok=True)
 
     with open('/etc/portage/proxy.conf', 'r') as fh:
@@ -345,19 +333,13 @@ def cli(ctx,
                        verbose=verbose,
                        debug=debug,)
 
-    #if 'jakeogh' not in sh.eselect('repository', 'list', '-i'):
-    #    sh.eselect('repository', 'add', 'jakeogh', 'git', 'https://github.com/jakeogh/jakeogh')   # ignores http_proxy
-    ##git config --global http.proxy http://192.168.222.100:8888
-    #install_package('dev-vcs/git')
-    #sh.emaint('sync', '-r', 'jakeogh')  # this needs git
-
     if pinebook_overlay:
         if 'pinebookpro-overlay' not in sh.eselect('repository', 'list', '-i'):
             sh.eselect('repository', 'add', 'pinebookpro-overlay', 'git', 'https://github.com/Jannik2099/pinebookpro-overlay.git')   # ignores http_proxy
         sh.emerge('--sync', 'pinebookpro-overlay')
         sh.emerge('-u', 'pinebookpro-profile-overrides')
 
-    install_package_force('compile-kernel')  # requires jakeogh overlay
+    install_packages_force(['compile-kernel'])  # requires jakeogh overlay
     sh.compile_kernel('--no-check-boot', _out=sys.stdout, _err=sys.stderr, _ok_code=[0, 1])
     #sh.cat /home/cfg/sysskel/etc/fstab.custom >> /etc/fstab
 
@@ -370,78 +352,78 @@ def cli(ctx,
     #install_grub_command(_out=sys.stdout, _err=sys.stderr)
 
     sh.rc_update('add', 'zfs-mount', 'boot', _out=sys.stdout, _err=sys.stderr, _ok_code=[0, 1]) # dont exit if this fails
-    install_package('dhcpcd')  # not in stage3
+    install_packages(['dhcpcd'])  # not in stage3
 
     gurantee_symlink(relative=False, target='/etc/init.d/net.lo', link_name='/etc/init.d/net.eth0', verbose=verbose, debug=debug,)
     sh.rc_update('add', 'net.eth0', 'default', _out=sys.stdout, _err=sys.stderr)
 
-    install_package('netdate')
+    install_packages(['netdate'])
     sh.date(_out=sys.stdout, _err=sys.stderr)
     sh.netdate('time.nist.gov', _out=sys.stdout, _err=sys.stderr)
     sh.date(_out=sys.stdout, _err=sys.stderr)
 
-    install_package('gpm')
+    install_packages(['gpm'])
     sh.rc_update('add', 'gpm', 'default', _out=sys.stdout, _err=sys.stderr)   #console mouse support
 
-    #install_package('elogind')
+    #install_packages('elogind')
     #rc-update add elogind default
 
-    install_package('app-admin/sysklogd')
+    install_packages(['app-admin/sysklogd'])
     sh.rc_update('add', 'sysklogd', 'default', _out=sys.stdout, _err=sys.stderr)  # syslog-ng hangs on boot... bloated
 
     os.makedirs('/etc/portage/package.mask', exist_ok=True)
-    install_package('unison')
+    install_packages(['unison'])
     #sh.eselect('unison', 'list') #todo
 
-    sh.perl_cleaner('--reallyall', _out=sys.stdout, _err=sys.stderr)
-    install_package('app-portage/repoman')
-    install_package('app-editors/vim')
-    install_package('www-client/links')
-    #install_package('dev-db/redis')  # later on, fix_cfg_perms will try to use the redis:redis user
-    install_package('app-admin/sudo')
-    install_package('app-text/tree')
-    install_package('sys-fs/safecopy')
-    install_package('sys-process/lsof')
-    install_package('sys-apps/lshw')
-    install_package('app-editors/hexedit')
-    install_package('sys-process/glances')
-    install_package('app-admin/pydf')
-    install_package('sys-fs/ncdu')
-    install_package('app-portage/gentoolkit') #equery
-    install_package('sys-process/htop')
-    install_package('sys-fs/ddrescue')
-    #install_package('sys-process/cronie')  # done in postreboot set
-    install_package('net-dns/bind-tools')
-    install_package('app-admin/sysstat')   #mpstat
+    #sh.perl_cleaner('--reallyall', _out=sys.stdout, _err=sys.stderr)  # perhaps in post_reboot instead, too slow
 
-    install_package('net-misc/openssh')  # fixes bindist for openssl/openssh, needed for wpa_supplicant
-    install_package('net-wireless/wpa_supplicant')
+    # sys_apps/usbutils is required for boot scripts that use lsusb
+    #dev-python/distro  # distro detection in boot scripts
+    #dev-util/ctags     # so vim/nvim wont complain
+    install_packages(['app-portage/repoman',
+                      'app-admin/sudo',
+                      'sys-apps/smartmontools',
+                      'app-portage/gentoolkit',
+                      'sys-power/powertop',
+                      'sys-power/upower',
+                      'sys-apps/dmidecode',
+                      'app-editors/vim',
+                      'net-misc/openssh',
+                      'www-client/links',
+                      'sys-fs/safecopy',
+                      'sys-process/lsof',
+                      'sys-apps/lshw',
+                      'app-editors/hexedit',
+                      'sys-process/glances',
+                      'app-admin/pydf',
+                      'sys-fs/ncdu',
+                      'sys-process/htop',
+                      'sys-fs/ddrescue',
+                      'net-dns/bind-tools',
+                      'app-admin/sysstat',
+                      'net-wireless/wpa_supplicant',
+                      'sys-apps/sg3_utils',
+                      'sys-fs/multipath-tools',
+                      'sys-apps/usbutils',
+                      'net-fs/nfs-utils',
+                      'dev-python/distro',
+                      'app-misc/tmux',
+                      'dev-util/ccache',
+                      'dev-util/ctags',
+                      'sys-apps/moreutils',
+                      ])
 
-    install_package('sys-apps/sg3_utils')
-    install_package_force('dev-util/fatrace')  # jakeogh overlay fatrace-9999 (C version)
-    install_package('sys-apps/smartmontools')
+    install_packages_force(['dev-util/fatrace'])  # jakeogh overlay fatrace-9999 (C version)
+    install_packages_force(['replace-text'])
     sh.rc_update('add', 'smartd', 'default')
-    install_package('sys-fs/multipath-tools')
-    install_package('sys-apps/usbutils')  # lsusb for /etc/local.d/ scripts
-
-    install_package('net-fs/nfs-utils')
     sh.rc_update('add', 'nfs', 'default')
-    install_package('dev-python/distro')  # distro detection in boot scripts
 
-    #install_package('net-libs/libnfsidmap')  # rpc.idmapd  ## "net-libs/libnfsidmap" is soft blocking net-fs/nfs-utils-2.5.4-r1
-
-    install_package('sys-power/powertop')
-    install_package('sys-power/upower')
-    install_package('sys-apps/dmidecode')
-    install_package('app-misc/tmux')
     sh.rc_update('add', 'dbus', 'default')
 
-    install_package('dev-util/ccache')
     os.makedirs('/var/cache/ccache', exist_ok=True)
     sh.chown('root:portage', '/var/cache/ccache')
     sh.chmod('2775', '/var/cache/ccache')
 
-    install_package('dev-util/ctags')  # so vim/nvim dont complain
 
     #sh.ls('/etc/ssh/sshd_config', '-al', _out=sys.stdout, _err=sys.stderr)
 
@@ -452,7 +434,6 @@ def cli(ctx,
                        verbose=verbose,
                        debug=debug,)
 
-    install_package_force('replace-text')
 
     os.environ['LANG'] = "en_US.UTF8"  # to make click happy
 
@@ -468,11 +449,10 @@ def cli(ctx,
     #                     replacement="c1:12345:respawn:/sbin/agetty 38400 tty1 linux --noclear",
 
     #grep noclear /etc/inittab || \
-    with open('/etc/iniitab', 'r') as fh:
+    with open('/etc/inittab', 'r') as fh:
         if not 'noclear' in fh.read():
             sh.replace_text('--match', "c1:12345:respawn:/sbin/agetty 38400 tty1 linux", '--replacement', "c1:12345:respawn:/sbin/agetty 38400 tty1 linux --noclear", '/etc/inittab')
 
-    install_package('sys-apps/moreutils') # need sponge for the next command
     #grep "c7:2345:respawn:/sbin/agetty 38400 tty7 linux" /etc/inittab || { cat /etc/inittab | /home/cfg/text/insert_line_after_match "c6:2345:respawn:/sbin/agetty 38400 tty6 linux" "c7:2345:respawn:/sbin/agetty 38400 tty7 linux" | sponge /etc/inittab ; }
     #echo "$(date) $0 complete" | tee -a /install_status
 
