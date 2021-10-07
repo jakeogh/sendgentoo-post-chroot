@@ -238,7 +238,7 @@ def cli(ctx,
                        debug=debug,)
 
     # memtest86+ # do before generating grub.conf
-    install_packages(['sys-kernel/{kernel}'.format(kernel=kernel)],
+    install_packages(['sys-kernel/{kernel}'.format(kernel=kernel),
                       'grub',
                       'dev-util/strace',
                       'memtest86+',
