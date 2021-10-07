@@ -63,7 +63,7 @@ def emerge_force(packages):
     emerge_command = sh.emerge.bake('--with-bdeps=y', '--quiet', '-v', '--tree', '--usepkg=n', '--ask', 'n', '--autounmask', '--autounmask-write', _env=_env, _out=sys.stdout, _err=sys.stderr,)
 
     for package in packages:
-        ic(package)
+        print("emerge_force() package:", package, file=sys.stderr)
         emerge_command.bake(package)
 
     emerge_command('-p', _ok_code=[0,1])
