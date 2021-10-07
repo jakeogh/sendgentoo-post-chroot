@@ -428,7 +428,7 @@ def cli(ctx,
     sh.rc_update('add', 'nfs', 'default')
     install_package('dev-python/distro')  # distro detection in boot scripts
 
-    install_package('net-libs/libnfsidmap')  # rpc.idmapd
+    #install_package('net-libs/libnfsidmap')  # rpc.idmapd  ## "net-libs/libnfsidmap" is soft blocking net-fs/nfs-utils-2.5.4-r1
 
     install_package('sys-power/powertop')
     install_package('sys-power/upower')
