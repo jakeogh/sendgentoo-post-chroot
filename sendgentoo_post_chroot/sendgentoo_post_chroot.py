@@ -55,18 +55,19 @@ if 'pentoo' not in sh.eselect('repository', 'list', '-i'):  # for fchroot (next 
     sh.eselect('repository', 'enable', 'pentoo', _out=sys.stdout, _err=sys.stderr)   # ignores http_proxy
 sh.emaint('sync', '-r', 'pentoo', _out=sys.stdout, _err=sys.stderr)  # this needs git
 
-_env = os.environ.copy()
-_env['CONFIG_PROTECT'] = '-*'
-
 
 def emerge_force(packages):
-    emerge_command = sh.emerge.bake('--with-bdeps=y', '--quiet', '--tree', '--usepkg=n', '--ask', 'n', '--autounmask', '--autounmask-write', _env=_env, _out=sys.stdout, _err=sys.stderr, _in=sys.stdin, _ok_code=[0,1])
+    _env = os.environ.copy()
+    _env['CONFIG_PROTECT'] = '-*'
+
+    emerge_command = sh.emerge.bake('--with-bdeps=y', '--quiet', '-v', '--tree', '--usepkg=n', '--ask', 'n', '--autounmask', '--autounmask-write', _env=_env, _out=sys.stdout, _err=sys.stderr,)
 
     for package in packages:
+        ic(package)
         emerge_command.bake(package)
 
-    emerge_command('-pv', _env=_env, _out=sys.stdout, _err=sys.stderr, _in=sys.stdin, _ok_code=[0,1])
-    emerge_command('--autounmask-continue', _env=_env, _out=sys.stdout, _err=sys.stderr, _in=sys.stdin)
+    emerge_command('-p', _ok_code=[0,1])
+    emerge_command('--autounmask-continue',)
 
 
 emerge_force(['pathtool', 'portagetool', 'devicetool', 'boottool', 'sendgentoo-post-chroot'])
