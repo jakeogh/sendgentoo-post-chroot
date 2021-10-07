@@ -41,6 +41,7 @@ def syscmd(cmd):
     print(cmd, file=sys.stderr)
     os.system(cmd)
 
+syscmd('eselect news read --all')
 syscmd('emerge --quiet dev-vcs/git -1 -u')
 syscmd('emerge --sync')
 syscmd('emerge --quiet sys-apps/portage -1 -u')
@@ -156,7 +157,15 @@ def cli(ctx,
         if 'musl' not in sh.eselect('repository', 'list', '-i'):  # for fchroot (next time)
             sh.eselect('repository', 'enable', 'musl', _out=sys.stdout, _err=sys.stderr)   # ignores http_proxy
         sh.emaint('sync', '-r', 'musl', _out=sys.stdout, _err=sys.stderr)  # this needs git
-        sh.emerge('-uvNDq', '@world', _out=sys.stdout, _err=sys.stderr)
+
+    # otherwise gcc compiles twice
+    write_line_to_file(path=Path('/etc') / Path('portage') / Path('package.use') / Path('gcc'),
+                       line='sys-devel/gcc fortran\n',
+                       unique=True,
+                       verbose=verbose,
+                       debug=debug,)
+
+    sh.emerge('-uvNDq', '@world', _out=sys.stdout, _err=sys.stderr)
 
     zfs_module_mode = "module"
     #env-update || exit 1
@@ -226,12 +235,6 @@ def cli(ctx,
 
     #source /etc/profile
 
-    # otherwise gcc compiles twice
-    write_line_to_file(path=Path('/etc') / Path('portage') / Path('package.use') / Path('gcc'),
-                       line='sys-devel/gcc fortran\n',
-                       unique=True,
-                       verbose=verbose,
-                       debug=debug,)
 
     # works, but quite a delay for an installer
     #install_package('gcc', verbose=verbose)
@@ -410,9 +413,12 @@ def cli(ctx,
     #install_package('sys-process/cronie')  # done in postreboot set
     install_package('net-dns/bind-tools')
     install_package('app-admin/sysstat')   #mpstat
-    install_package('wpa_supplicant')
+
+    install_package('net-misc/openssh')  # fixes bindist for openssl/openssh, needed for wpa_supplicant
+    install_package('net-wireless/wpa_supplicant')
+
     install_package('sys-apps/sg3_utils')
-    install_package('dev-util/fatrace')
+    install_package_force('dev-util/fatrace')  # jakeogh overlay fatrace-9999 (C version)
     install_package('sys-apps/smartmontools')
     sh.rc_update('add', 'smartd', 'default')
     install_package('sys-fs/multipath-tools')
