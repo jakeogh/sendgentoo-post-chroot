@@ -342,7 +342,7 @@ def cli(ctx,
         sh.emerge('-u', 'pinebookpro-profile-overrides')
 
     install_packages_force(['compile-kernel'])  # requires jakeogh overlay
-    sh.compile_kernel('--no-check-boot', _out=sys.stdout, _err=sys.stderr, _ok_code=[0, 1])
+    sh.compile_kernel('--no-check-boot', _out=sys.stdout, _err=sys.stderr, _ok_code=[0])
     #sh.cat /home/cfg/sysskel/etc/fstab.custom >> /etc/fstab
 
     # this cant be done until memtest86+ and the kernel are ready
