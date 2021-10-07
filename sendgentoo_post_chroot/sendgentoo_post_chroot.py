@@ -60,11 +60,11 @@ def emerge_force(packages):
     _env = os.environ.copy()
     _env['CONFIG_PROTECT'] = '-*'
 
-    emerge_command = sh.Command('emerge', '--with-bdeps=y', '--quiet', '-v', '--tree', '--usepkg=n', '--ask', 'n', '--autounmask', '--autounmask-write',)
+    emerge_command = sh.emerge.bake('--with-bdeps=y', '--quiet', '-v', '--tree', '--usepkg=n', '--ask', 'n', '--autounmask', '--autounmask-write',)
 
     for package in packages:
         print("emerge_force() package:", package, file=sys.stderr)
-        emerge_command.bake(package)
+        emerge_command = emerge_command.bake(package)
         print("emerge_command:", emerge_command, file=sys.stderr)
 
     emerge_command('-p', _ok_code=[0,1], _env=_env, _out=sys.stdout, _err=sys.stderr,)
