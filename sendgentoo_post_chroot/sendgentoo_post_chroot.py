@@ -60,14 +60,15 @@ def emerge_force(packages):
     _env = os.environ.copy()
     _env['CONFIG_PROTECT'] = '-*'
 
-    emerge_command = sh.emerge.bake('--with-bdeps=y', '--quiet', '-v', '--tree', '--usepkg=n', '--ask', 'n', '--autounmask', '--autounmask-write', _env=_env, _out=sys.stdout, _err=sys.stderr,)
+    emerge_command = sh.emerge.bake('--with-bdeps=y', '--quiet', '-v', '--tree', '--usepkg=n', '--ask', 'n', '--autounmask', '--autounmask-write',)
 
     for package in packages:
         print("emerge_force() package:", package, file=sys.stderr)
         emerge_command.bake(package)
+        print("emerge_command:", emerge_command, file=sys.stderr)
 
-    emerge_command('-p', _ok_code=[0,1])
-    emerge_command('--autounmask-continue',)
+    emerge_command('-p', _ok_code=[0,1], _env=_env, _out=sys.stdout, _err=sys.stderr,)
+    emerge_command('--autounmask-continue', _env=_env, _out=sys.stdout, _err=sys.stderr,)
 
 
 emerge_force(['pathtool', 'portagetool', 'devicetool', 'boottool', 'sendgentoo-post-chroot'])
