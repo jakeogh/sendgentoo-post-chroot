@@ -42,7 +42,7 @@ def syscmd(cmd):
     os.system(cmd)
 
 
-syscmd("eselect news read --all")
+syscmd("eselect news read all")
 syscmd("emerge --quiet dev-vcs/git -1 -u")
 syscmd("emerge --sync")
 syscmd(
