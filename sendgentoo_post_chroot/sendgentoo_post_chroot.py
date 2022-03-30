@@ -177,6 +177,7 @@ def cli(
     kernel: str,
     verbose: Union[bool, int, float],
     verbose_inf: bool,
+    dict_input: bool,
 ):
 
     tty, verbose = tv(
