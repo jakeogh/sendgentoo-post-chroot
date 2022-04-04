@@ -113,8 +113,8 @@ import click
 
 signal(SIGPIPE, SIG_DFL)
 from pathlib import Path
-from typing import ByteString
-from typing import Generator
+# from typing import ByteString
+# from typing import Generator
 from typing import Iterable
 from typing import List
 from typing import Optional
@@ -317,8 +317,11 @@ def cli(
     ] = "1"  # https://www.mail-archive.com/lede-dev@lists.infradead.org/msg07290.html
 
     # required so /usr/src/linux exists
+    kernel_package_use = (
+        Path("/etc") / Path("portage") / Path("package.use") / Path(kernel)
+    )
     write_line_to_file(
-        path=Path("/etc") / Path("portage") / Path("package.use") / Path(kernel),
+        path=kernel_package_use,
         line=f"sys-kernel/{kernel} symlink\n",
         unique=True,
         verbose=verbose,
@@ -334,6 +337,7 @@ def cli(
         ],
         verbose=verbose,
     )
+    os.truncate(kernel_package_use, 0)  # dont leave symlink USE flag in place
 
     os.makedirs("/usr/src/linux_configs", exist_ok=True)
 
