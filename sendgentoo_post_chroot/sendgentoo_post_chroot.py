@@ -43,6 +43,18 @@ def syscmd(cmd):
 
 
 syscmd("eselect news read all")
+
+with open("/etc/portage/proxy.conf", "r", encoding="utf8") as fh:
+    for line in fh:
+        line = line.strip()
+        line = "".join(line.split('"'))
+        line = "".join(line.split("#"))
+        if line:
+            # ic(line)
+            key = line.split("=")[0]
+            value = line.split("=")[1]
+            os.environ[key] = value
+
 syscmd("emerge --quiet dev-vcs/git -1 -u")
 syscmd("emerge --sync")
 syscmd(
@@ -109,10 +121,11 @@ emerge_force(
     ["pathtool", "portagetool", "devicetool", "boottool", "sendgentoo-post-chroot"]
 )
 
+from pathlib import Path
+
 import click
 
 signal(SIGPIPE, SIG_DFL)
-from pathlib import Path
 # from typing import ByteString
 # from typing import Generator
 from typing import Iterable
@@ -434,7 +447,7 @@ def cli(
                 os.environ[key] = value
                 write_line_to_file(
                     path=Path("/etc") / Path("wgetrc"),
-                    line="{}\n".format(line),
+                    line=f"{line}\n",
                     unique=True,
                     unlink_first=False,
                     verbose=verbose,
