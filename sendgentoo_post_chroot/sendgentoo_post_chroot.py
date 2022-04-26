@@ -1,7 +1,6 @@
 #!/usr/bin/env python3
 # -*- coding: utf8 -*-
 
-# flake8: noqa           # flake8 has no per file settings :(
 # pylint: disable=C0111  # docstrings are always outdated and wrong
 # pylint: disable=C0114  #      Missing module docstring (missing-module-docstring)
 # pylint: disable=W0511  # todo is encouraged
@@ -20,17 +19,17 @@
 # pylint: disable=W0201  # attribute defined outside __init__
 # pylint: disable=R0916  # Too many boolean expressions in if statement
 # pylint: disable=C0305  # Trailing newlines editor should fix automatically, pointless warning
-# pylint: disable=C0413  # TEMP isort issue [wrong-import-position] Import "from pathlib import Path" should be placed at the top of the module [C0413]
 
 import logging
 
 logging.basicConfig(level=logging.INFO)
 import os
 import sys
-# import time
 from signal import SIG_DFL
 from signal import SIGPIPE
 from signal import signal
+
+signal(SIGPIPE, SIG_DFL)
 
 if len(sys.argv) <= 2:
     print(sys.argv[0], "arguments required")
@@ -122,10 +121,6 @@ emerge_force(
 )
 
 from pathlib import Path
-
-import click
-
-signal(SIGPIPE, SIG_DFL)
 # from typing import ByteString
 # from typing import Generator
 from typing import Iterable
@@ -135,6 +130,7 @@ from typing import Sequence
 from typing import Tuple
 from typing import Union
 
+import click
 from asserttool import ic
 from boottool import install_grub
 from clicktool import click_add_options
@@ -242,7 +238,7 @@ def cli(
 
     sh.emerge("-uvNDq", "@world", _out=sys.stdout, _err=sys.stderr)
 
-    zfs_module_mode = "module"
+    # zfs_module_mode = "module"
     # env-update || exit 1
     # source /etc/profile || exit 1
 
@@ -442,9 +438,9 @@ def cli(
             line = "".join(line.split("#"))
             if line:
                 ic(line)
-                key = line.split("=")[0]
-                value = line.split("=")[1]
-                os.environ[key] = value
+                # key = line.split("=")[0]
+                # value = line.split("=")[1]
+                # os.environ[key] = value    # done at top of file
                 write_line_to_file(
                     path=Path("/etc") / Path("wgetrc"),
                     line=f"{line}\n",
@@ -610,7 +606,7 @@ def cli(
 
     # grep noclear /etc/inittab || \
     with open("/etc/inittab", "r", encoding="utf8") as fh:
-        if not "noclear" in fh.read():
+        if "noclear" not in fh.read():
             sh.replace_text(
                 "--match",
                 "c1:12345:respawn:/sbin/agetty 38400 tty1 linux",
