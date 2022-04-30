@@ -489,8 +489,6 @@ def cli(
         boot_device=boot_device,
         verbose=verbose,
     )
-    # install_grub_command = sh.Command('/home/cfg/_myapps/sendgentoo/sendgentoo/post_chroot_install_grub.sh', boot_device)
-    # install_grub_command(_out=sys.stdout, _err=sys.stderr)
 
     sh.rc_update(
         "add", "zfs-mount", "boot", _out=sys.stdout, _err=sys.stderr, _ok_code=[0, 1]
