@@ -41,9 +41,11 @@ def syscmd(cmd):
     os.system(cmd)
 
 
-print("os.environ['TMUX']:", os.environ["TMUX"])
 syscmd("emerge app-misc/tmux -u")
-if not os.environ["TMUX"]:
+
+try:
+    print("os.environ['TMUX']:", os.environ["TMUX"])
+except KeyError:
     print("start tmux!", file=sys.stderr)
     sys.exit(1)
 
