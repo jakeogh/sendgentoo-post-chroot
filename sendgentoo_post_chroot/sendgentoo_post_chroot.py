@@ -41,6 +41,12 @@ def syscmd(cmd):
     os.system(cmd)
 
 
+print("os.environ['TMUX']:", os.environ["TMUX"])
+syscmd("emerge app-misc/tmux -u")
+if not os.environ["TMUX"]:
+    print("start tmux!", file=sys.stderr)
+    sys.exit(1)
+
 syscmd("eselect news read all")
 
 with open("/etc/portage/proxy.conf", "r", encoding="utf8") as fh:
