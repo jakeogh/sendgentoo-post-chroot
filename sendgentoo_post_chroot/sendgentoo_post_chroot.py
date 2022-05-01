@@ -618,6 +618,8 @@ def cli(
                 "/etc/inittab",
             )
 
+    eprint("sendgentoo_post_chroot.py complete! Exit chroot and reboot.")
+
 
 if __name__ == "__main__":
     # pylint: disable=E1120
