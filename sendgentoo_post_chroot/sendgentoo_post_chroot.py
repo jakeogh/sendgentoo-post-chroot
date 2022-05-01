@@ -508,7 +508,9 @@ def cli(
         verbose=verbose,
     )
     sh.date(_out=sys.stdout, _err=sys.stderr)
-    sh.netdate("time.nist.gov", _out=sys.stdout, _err=sys.stderr)
+    sh.netdate(
+        "time.nist.gov", _out=sys.stdout, _err=sys.stderr, _ok_code=[0, 1]
+    )  # todo, figure out NTP over proxy
     sh.date(_out=sys.stdout, _err=sys.stderr)
 
     install_packages(
@@ -606,11 +608,6 @@ def cli(
         verbose=verbose,
     )
 
-    # replace_text_in_file(path='/etc/inittab',
-    #                     match="c1:12345:respawn:/sbin/agetty 38400 tty1 linux",
-    #                     replacement="c1:12345:respawn:/sbin/agetty 38400 tty1 linux --noclear",
-
-    # grep noclear /etc/inittab || \
     with open("/etc/inittab", "r", encoding="utf8") as fh:
         if "noclear" not in fh.read():
             sh.replace_text(
@@ -620,9 +617,6 @@ def cli(
                 "c1:12345:respawn:/sbin/agetty 38400 tty1 linux --noclear",
                 "/etc/inittab",
             )
-
-    # grep "c7:2345:respawn:/sbin/agetty 38400 tty7 linux" /etc/inittab || { cat /etc/inittab | /home/cfg/text/insert_line_after_match "c6:2345:respawn:/sbin/agetty 38400 tty6 linux" "c7:2345:respawn:/sbin/agetty 38400 tty7 linux" | sponge /etc/inittab ; }
-    # echo "$(date) $0 complete" | tee -a /install_status
 
 
 if __name__ == "__main__":
