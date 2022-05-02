@@ -18,17 +18,15 @@
 # pylint: disable=E1101  # no member for base
 # pylint: disable=W0201  # attribute defined outside __init__
 # pylint: disable=R0916  # Too many boolean expressions in if statement
-# pylint: disable=C0305  # Trailing newlines editor should fix automatically, pointless warning
 
 import logging
-
-logging.basicConfig(level=logging.INFO)
 import os
 import sys
 from signal import SIG_DFL
 from signal import SIGPIPE
 from signal import signal
 
+logging.basicConfig(level=logging.INFO)
 signal(SIGPIPE, SIG_DFL)
 
 if len(sys.argv) <= 2:
@@ -150,7 +148,6 @@ from pathtool import gurantee_symlink
 from pathtool import write_line_to_file
 from portagetool import add_accept_keyword
 from portagetool import install_packages
-from portagetool import install_packages_force
 
 
 @click.command()
@@ -352,6 +349,7 @@ def cli(
             "dev-util/strace",
             "memtest86+",
         ],
+        force=False,
         verbose=verbose,
     )
     os.truncate(kernel_package_use, 0)  # dont leave symlink USE flag in place
@@ -417,7 +415,9 @@ def cli(
         verbose=verbose,
     )
 
-    install_packages(["gradm"], verbose=verbose)  # required for gentoo-hardened RBAC
+    install_packages(
+        ["gradm"], force=False, verbose=verbose
+    )  # required for gentoo-hardened RBAC
 
     # required for genkernel
     write_line_to_file(
@@ -436,7 +436,7 @@ def cli(
         verbose=verbose,
     )
 
-    install_packages(["genkernel"], verbose=verbose)
+    install_packages(["genkernel"], force=False, verbose=verbose)
     os.makedirs("/etc/portage/repos.conf", exist_ok=True)
 
     with open("/etc/portage/proxy.conf", "r", encoding="utf8") as fh:
@@ -477,8 +477,10 @@ def cli(
         sh.emerge("--sync", "pinebookpro-overlay")
         sh.emerge("-u", "pinebookpro-profile-overrides")
 
-    install_packages_force(
-        ["compile-kernel"], verbose=verbose
+    install_packages(
+        ["compile-kernel"],
+        verbose=verbose,
+        force=True,
     )  # requires jakeogh overlay
     sh.compile_kernel("--no-check-boot", _out=sys.stdout, _err=sys.stderr, _ok_code=[0])
     # sh.cat /home/cfg/sysskel/etc/fstab.custom >> /etc/fstab
@@ -493,7 +495,7 @@ def cli(
     sh.rc_update(
         "add", "zfs-mount", "boot", _out=sys.stdout, _err=sys.stderr, _ok_code=[0, 1]
     )  # dont exit if this fails
-    install_packages(["dhcpcd"], verbose=verbose)  # not in stage3
+    install_packages(["dhcpcd"], force=False, verbose=verbose)  # not in stage3
 
     gurantee_symlink(
         relative=False,
@@ -505,6 +507,7 @@ def cli(
 
     install_packages(
         ["netdate"],
+        force=False,
         verbose=verbose,
     )
     sh.date(_out=sys.stdout, _err=sys.stderr)
@@ -515,6 +518,7 @@ def cli(
 
     install_packages(
         ["gpm"],
+        force=False,
         verbose=verbose,
     )
     sh.rc_update(
@@ -524,13 +528,13 @@ def cli(
     # install_packages('elogind')
     # rc-update add elogind default
 
-    install_packages(["app-admin/sysklogd"], verbose=verbose)
+    install_packages(["app-admin/sysklogd"], force=False, verbose=verbose)
     sh.rc_update(
         "add", "sysklogd", "default", _out=sys.stdout, _err=sys.stderr
     )  # syslog-ng hangs on boot... bloated
 
     os.makedirs("/etc/portage/package.mask", exist_ok=True)
-    install_packages(["unison"], verbose=verbose)
+    install_packages(["unison"], force=False, verbose=verbose)
     # sh.eselect('unison', 'list') #todo
 
     # sh.perl_cleaner('--reallyall', _out=sys.stdout, _err=sys.stderr)  # perhaps in post_reboot instead, too slow
@@ -573,12 +577,19 @@ def cli(
             "sys-apps/moreutils",
         ],
         verbose=verbose,
+        force=False,
     )
 
-    install_packages_force(
-        ["dev-util/fatrace"], verbose=verbose
+    install_packages(
+        ["dev-util/fatrace"],
+        verbose=verbose,
+        force=True,
     )  # jakeogh overlay fatrace-9999 (C version)
-    install_packages_force(["replace-text"], verbose=verbose)
+    install_packages(
+        ["replace-text"],
+        verbose=verbose,
+        force=True,
+    )
     sh.rc_update("add", "smartd", "default")
     sh.rc_update("add", "nfs", "default")
 
