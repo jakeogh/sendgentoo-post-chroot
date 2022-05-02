@@ -177,7 +177,6 @@ from portagetool import install_packages
     type=click.Choice(["gentoo-sources", "pinebookpro-manjaro-sources"]),
     default="gentoo-sources",
 )
-@click.option("--verbose", is_flag=True)
 @click_add_options(click_global_options)
 @click.pass_context
 def cli(
